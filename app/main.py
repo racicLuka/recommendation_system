@@ -1,6 +1,7 @@
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from sqlalchemy.orm import Session
-
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from . import crud, models, schemas
 from .database import SessionLocal, engine
 
@@ -15,6 +16,14 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+templates = Jinja2Templates(directory="templates")
+
+
+@app.get("/", response_class=HTMLResponse)
+def read_root(request: Request):
+    return templates.TemplateResponse("index.html", context={"request": request})
 
 
 @app.post("/users/", response_model=schemas.User, tags=["users"])
