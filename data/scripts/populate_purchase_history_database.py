@@ -1,7 +1,7 @@
 import csv
 import sqlite3
 
-conn = sqlite3.connect("../purchase_history.sqlite")
+conn = sqlite3.connect("../database.sqlite")
 cursor = conn.cursor()
 
 

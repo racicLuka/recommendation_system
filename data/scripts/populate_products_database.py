@@ -1,7 +1,7 @@
 import sqlite3
 from extract_users_and_products import extract_unique_product_ids
 
-products_conn = sqlite3.connect("products.sqlite")
+products_conn = sqlite3.connect("../database.sqlite")
 products_cursor = products_conn.cursor()
 
 unique_products = extract_unique_product_ids("../dataset - dataset.csv")
