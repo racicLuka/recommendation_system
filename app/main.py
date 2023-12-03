@@ -77,8 +77,8 @@ def create_purchase(user_id: int, product_id: int, db: Session = Depends(get_db)
 
 
 @app.get("/purchases/", response_model=list[schemas.Purchase], tags=["purchases"])
-def read_purchases(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    purchases = crud.get_purchases(db, skip=skip, limit=limit)
+def read_purchases(skip: int = 0, db: Session = Depends(get_db)):
+    purchases = crud.get_purchases(db, skip=skip)
     return purchases
 
 
@@ -108,3 +108,12 @@ def read_purchases_by_user(user_id: int, db: Session = Depends(get_db)):
 )
 def read_purchases_by_product(product_id: int, db: Session = Depends(get_db)):
     return crud.get_purchases_by_product(db, product_id=product_id)
+
+
+@app.get(
+    "/recommendations/{user_id}",
+    response_model=list[schemas.Product],
+    tags=["recommendations"],
+)
+def recommend_products_by_user_id(user_id: int, db: Session = Depends(get_db)):
+    return crud.recommend_products_by_user(db, user_id=user_id)

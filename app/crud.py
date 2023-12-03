@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 
+from recommendations.recommend import create_recommendation_matrix, recommend_items
 from . import models, schemas
 
 
@@ -14,6 +15,13 @@ def get_user_by_name(db: Session, name: str):
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.User).offset(skip).limit(limit).all()
+
+
+def get_user_preferences(db: Session, user_id: int):
+    user = get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User ID not found")
+    return user.preferences
 
 
 def create_user(db: Session, user: schemas.User):
@@ -67,8 +75,8 @@ def create_purchase(db: Session, purchase: schemas.Purchase):
     return db_purchase
 
 
-def get_purchases(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Purchase).offset(skip).limit(limit).all()
+def get_purchases(db: Session, skip: int = 0):
+    return db.query(models.Purchase).offset(skip).all()
 
 
 def get_purchase(db: Session, purchase_id: int):
@@ -89,3 +97,23 @@ def get_purchases_by_product(db: Session, product_id: int):
     return (
         db.query(models.Purchase).filter(models.Purchase.product_id == product_id).all()
     )
+
+
+def recommend_products_by_user(db: Session, user_id: int):
+    user = get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User ID not found")
+
+    recommended_products = recommend_items(
+        get_purchases(db),
+        user_id,
+    )
+
+    final_recommendations = []
+    for product in recommended_products:
+        db_product = get_product(db, product)
+        if not db_product:
+            raise HTTPException(status_code=404, detail="Product ID not found")
+        final_recommendations.append(db_product)
+
+    return final_recommendations
