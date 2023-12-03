@@ -17,7 +17,7 @@ def get_db():
         db.close()
 
 
-@app.post("/users/", response_model=schemas.User)
+@app.post("/users/", response_model=schemas.User, tags=["users"])
 def create_user(user: schemas.User, db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user.user_id)
     if db_user:
@@ -25,7 +25,7 @@ def create_user(user: schemas.User, db: Session = Depends(get_db)):
     return crud.create_user(db=db, user=user)
 
 
-@app.post("/products/", response_model=schemas.Product)
+@app.post("/products/", response_model=schemas.Product, tags=["products"])
 def create_product(product: schemas.Product, db: Session = Depends(get_db)):
     db_product = crud.get_product(db, product_id=product.product_id)
     if db_product:
@@ -33,19 +33,19 @@ def create_product(product: schemas.Product, db: Session = Depends(get_db)):
     return crud.create_product(db=db, product=product)
 
 
-@app.get("/users/", response_model=list[schemas.User])
+@app.get("/users/", response_model=list[schemas.User], tags=["users"])
 def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     users = crud.get_users(db, skip=skip, limit=limit)
     return users
 
 
-@app.get("/products/", response_model=list[schemas.Product])
+@app.get("/products/", response_model=list[schemas.Product], tags=["products"])
 def read_products(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     products = crud.get_products(db, skip=skip, limit=limit)
     return products
 
 
-@app.get("/users/{user_id}", response_model=schemas.User)
+@app.get("/users/{user_id}", response_model=schemas.User, tags=["users"])
 def read_user(user_id: int, db: Session = Depends(get_db)):
     db_user = crud.get_user(db, user_id=user_id)
     if db_user is None:
@@ -53,7 +53,7 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
     return db_user
 
 
-@app.get("/products/{product_id}", response_model=schemas.User)
+@app.get("/products/{product_id}", response_model=schemas.Product, tags=["products"])
 def read_product(product_id: int, db: Session = Depends(get_db)):
     db_product = crud.get_product(db, product_id=product_id)
     if db_product is None:
@@ -61,7 +61,7 @@ def read_product(product_id: int, db: Session = Depends(get_db)):
     return db_product
 
 
-@app.post("/purchases/", response_model=schemas.Purchase)
+@app.post("/purchases/", response_model=schemas.Purchase, tags=["purchases"])
 def create_purchase(user_id: int, product_id: int, db: Session = Depends(get_db)):
     if not (db_user := crud.get_user(db, user_id=user_id)):
         raise HTTPException(status_code=404, detail="User ID not found")
@@ -76,13 +76,15 @@ def create_purchase(user_id: int, product_id: int, db: Session = Depends(get_db)
     return crud.create_purchase(db=db, purchase=purchase)
 
 
-@app.get("/purchases/", response_model=list[schemas.Purchase])
+@app.get("/purchases/", response_model=list[schemas.Purchase], tags=["purchases"])
 def read_purchases(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     purchases = crud.get_purchases(db, skip=skip, limit=limit)
     return purchases
 
 
-@app.get("/purchases/{purchase_id}", response_model=schemas.Purchase)
+@app.get(
+    "/purchases/{purchase_id}", response_model=schemas.Purchase, tags=["purchases"]
+)
 def read_purchase(purchase_id: int, db: Session = Depends(get_db)):
     db_purchase = crud.get_purchase(db, purchase_id=purchase_id)
     if db_purchase is None:
@@ -90,11 +92,19 @@ def read_purchase(purchase_id: int, db: Session = Depends(get_db)):
     return db_purchase
 
 
-@app.get("/users/{user_id}/purchases/", response_model=list[schemas.Purchase])
+@app.get(
+    "/users/{user_id}/purchases/",
+    response_model=list[schemas.Purchase],
+    tags=["users"],
+)
 def read_purchases_by_user(user_id: int, db: Session = Depends(get_db)):
     return crud.get_purchases_by_user(db, user_id=user_id)
 
 
-@app.get("/products/{product_id}/purchases/", response_model=list[schemas.Purchase])
+@app.get(
+    "/products/{product_id}/purchases/",
+    response_model=list[schemas.Purchase],
+    tags=["products"],
+)
 def read_purchases_by_product(product_id: int, db: Session = Depends(get_db)):
     return crud.get_purchases_by_product(db, product_id=product_id)
