@@ -1,10 +1,10 @@
 import sqlite3
-from database.extract_users_and_products import extract_unique_user_ids
+from extract_users_and_products import extract_unique_user_ids
 
 users_conn = sqlite3.connect("users.sqlite")
 users_cursor = users_conn.cursor()
 
-unique_users = extract_unique_user_ids("dataset - dataset.csv")
+unique_users = extract_unique_user_ids("../dataset - dataset.csv")
 users_cursor.execute(
     """
     CREATE TABLE IF NOT EXISTS users (

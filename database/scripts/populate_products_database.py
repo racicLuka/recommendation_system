@@ -4,7 +4,7 @@ from extract_users_and_products import extract_unique_product_ids
 products_conn = sqlite3.connect("products.sqlite")
 products_cursor = products_conn.cursor()
 
-unique_products = extract_unique_product_ids("dataset - dataset.csv")
+unique_products = extract_unique_product_ids("../dataset - dataset.csv")
 products_cursor.execute(
     """
     CREATE TABLE IF NOT EXISTS products (
