@@ -1,10 +1,10 @@
 # Dockerfile
 
 # Use a base image
-FROM python:3.11.6-bookworm
+FROM python:3.11-slim
 
 # Set the working directory
-WORKDIR /
+WORKDIR /app
 
 # Copy the requirements file
 COPY requirements.txt .
