@@ -8,29 +8,26 @@ class User(BaseModel):
     age: int
     location: str
     preferences: str
-    purchases: list[Purchase]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Product(BaseModel):
     product_id: int
     product_name: str
-    category: int
+    category: str
     description: str
     tags: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class Purchase(BaseModel):
-    purchase_id: int
     user_id: int
     product_id: int
-    user = User
-    product = Product
+    user: User
 
     class Config:
-        orm_mode = True
+        from_attributes = True

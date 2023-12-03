@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 
 from . import models, schemas
 
@@ -55,12 +56,10 @@ def create_product(db: Session, product: schemas.Product):
 
 def create_purchase(db: Session, purchase: schemas.Purchase):
     user = get_user(db, purchase.user_id)
-    product = get_product(db, purchase.product_id)
     db_purchase = models.Purchase(
         user_id=purchase.user_id,
         product_id=purchase.product_id,
         user=user,
-        product=product,
     )
     db.add(db_purchase)
     db.commit()
@@ -73,8 +72,20 @@ def get_purchases(db: Session, skip: int = 0, limit: int = 100):
 
 
 def get_purchase(db: Session, purchase_id: int):
+    return db.query(models.Purchase).filter(models.Purchase.id == purchase_id).first()
+
+
+def get_purchases_by_user(db: Session, user_id: int):
+    user = get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User ID not found")
+    return user.purchases
+
+
+def get_purchases_by_product(db: Session, product_id: int):
+    product = get_product(db, product_id)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product ID not found")
     return (
-        db.query(models.Purchase)
-        .filter(models.Purchase.purchase_id == purchase_id)
-        .first()
+        db.query(models.Purchase).filter(models.Purchase.product_id == product_id).all()
     )

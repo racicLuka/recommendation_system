@@ -63,10 +63,15 @@ def read_product(product_id: int, db: Session = Depends(get_db)):
 
 @app.post("/purchases/", response_model=schemas.Purchase)
 def create_purchase(user_id: int, product_id: int, db: Session = Depends(get_db)):
-    user = crud.get_user(db, user_id=user_id)
-    product = crud.get_product(db, product_id=product_id)
+    if not (db_user := crud.get_user(db, user_id=user_id)):
+        raise HTTPException(status_code=404, detail="User ID not found")
+    if not (db_product := crud.get_product(db, product_id=product_id)):
+        raise HTTPException(status_code=404, detail="Product ID not found")
+
     purchase = schemas.Purchase(
-        user_id=user_id, product_id=product_id, user=user, product=product
+        user_id=user_id,
+        product_id=product_id,
+        user=db_user,
     )
     return crud.create_purchase(db=db, purchase=purchase)
 
@@ -83,3 +88,13 @@ def read_purchase(purchase_id: int, db: Session = Depends(get_db)):
     if db_purchase is None:
         raise HTTPException(status_code=404, detail="Purchase not found")
     return db_purchase
+
+
+@app.get("/users/{user_id}/purchases/", response_model=list[schemas.Purchase])
+def read_purchases_by_user(user_id: int, db: Session = Depends(get_db)):
+    return crud.get_purchases_by_user(db, user_id=user_id)
+
+
+@app.get("/products/{product_id}/purchases/", response_model=list[schemas.Purchase])
+def read_purchases_by_product(product_id: int, db: Session = Depends(get_db)):
+    return crud.get_purchases_by_product(db, product_id=product_id)
